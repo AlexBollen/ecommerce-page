@@ -48,7 +48,7 @@ const HeaderBottom = () => {
             className="flex h-14 cursor-pointer items-center gap-2 text-primeColor"
           >
             <HiOutlineMenuAlt4 className="w-5 h-5" />
-            <p className="text-[14px] font-normal">Shop by Category</p>
+            <p className="text-[14px] font-normal">Comprar por categoría</p>
 
             {show && (
               <motion.ul
@@ -84,7 +84,7 @@ const HeaderBottom = () => {
               type="text"
               onChange={handleSearch}
               value={searchQuery}
-              placeholder="Search your products here"
+              placeholder="Busca tus productos aquí"
             />
             <FaSearch className="w-5 h-5" />
             {searchQuery && (
