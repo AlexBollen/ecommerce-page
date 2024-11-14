@@ -54,7 +54,7 @@ const ProductInfo = ({ productInfo }) => {
     <div className="flex flex-col gap-5">
       <h2 className="text-4xl font-semibold">{productInfo.productName}</h2>
       <p className="text-xl font-semibold">Q{productInfo.price}</p>
-      <p className="text-base text-gray-600">{productInfo.des}</p>
+      <p className="text-base text-gray-600">{productInfo.color}</p>
       <button
         onClick={() =>
           dispatch(
