@@ -24,9 +24,9 @@ const ProductDetails = () => {
           <div className="h-full">
             <ProductsOnSale />
           </div>
-          <div className="h-full xl:col-span-2">
+          <div className="h-full xl:col-span-2 flex items-center justify-center">
             <img
-              className="w-full h-full object-cover"
+              className="w-full h-2/3 object-cover"
               src={productInfo.img}
               alt={productInfo.img}
             />
