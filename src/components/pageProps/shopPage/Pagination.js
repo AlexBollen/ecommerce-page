@@ -14,7 +14,7 @@ function Items({ currentItems }) {
               img={item.imagen}
               productName={item.nombre_producto}
               price={item.precio_venta}
-              color={item.nombre_categoria}
+              color={item.descripcion_producto}
               badge={item.nombre_categoria}
               des={item.nombre_categoria}
             />
