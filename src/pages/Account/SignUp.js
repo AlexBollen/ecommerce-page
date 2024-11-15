@@ -1,32 +1,28 @@
 import React, { useState } from "react";
 import { BsCheckCircleFill } from "react-icons/bs";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { logoLight } from "../../assets/images";
+import api from "../../utils/api";
 
 const SignUp = () => {
-  // ============= Initial State Start here =============
   const [clientName, setClientName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
+  const [nit, setNit] = useState("");
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
   const [country, setCountry] = useState("");
-  const [zip, setZip] = useState("");
   const [checked, setChecked] = useState(false);
-  // ============= Initial State End here ===============
-  // ============= Error Msg Start here =================
   const [errClientName, setErrClientName] = useState("");
   const [errEmail, setErrEmail] = useState("");
   const [errPhone, setErrPhone] = useState("");
   const [errPassword, setErrPassword] = useState("");
+  const [errNit, setErrNit] = useState("");
   const [errAddress, setErrAddress] = useState("");
   const [errCity, setErrCity] = useState("");
   const [errCountry, setErrCountry] = useState("");
-  const [errZip, setErrZip] = useState("");
-  // ============= Error Msg End here ===================
-  const [successMsg, setSuccessMsg] = useState("");
-  // ============= Event Handler Start here =============
+
   const handleName = (e) => {
     setClientName(e.target.value);
     setErrClientName("");
@@ -43,6 +39,10 @@ const SignUp = () => {
     setPassword(e.target.value);
     setErrPassword("");
   };
+  const handleNit = (e) => {
+    setNit(e.target.value);
+    setErrNit("");
+  };
   const handleAddress = (e) => {
     setAddress(e.target.value);
     setErrAddress("");
@@ -55,77 +55,79 @@ const SignUp = () => {
     setCountry(e.target.value);
     setErrCountry("");
   };
-  const handleZip = (e) => {
-    setZip(e.target.value);
-    setErrZip("");
-  };
-  // ============= Event Handler End here ===============
-  // ================= Email Validation start here =============
+
   const EmailValidation = (email) => {
     return String(email)
       .toLowerCase()
       .match(/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i);
   };
-  // ================= Email Validation End here ===============
 
   const handleSignUp = (e) => {
     e.preventDefault();
     if (checked) {
       if (!clientName) {
-        setErrClientName("Enter your name");
+        setErrClientName("Ingresa tu nombre");
       }
       if (!email) {
-        setErrEmail("Enter your email");
+        setErrEmail("Ingresa tu correo");
       } else {
         if (!EmailValidation(email)) {
-          setErrEmail("Enter a Valid email");
+          setErrEmail("Ingresa un mail válido");
         }
       }
       if (!phone) {
-        setErrPhone("Enter your phone number");
+        setErrPhone("Ingresa tu número de teléfono");
       }
       if (!password) {
-        setErrPassword("Create a password");
+        setErrPassword("Ingresa una contraseña");
       } else {
         if (password.length < 6) {
-          setErrPassword("Passwords must be at least 6 characters");
+          setErrPassword("La contraseña debe tener 6 caracteres");
         }
       }
       if (!address) {
-        setErrAddress("Enter your address");
+        setErrAddress("Ingresa tu dirección");
       }
       if (!city) {
-        setErrCity("Enter your city name");
+        setErrCity("Ingresa tu municipio");
       }
       if (!country) {
-        setErrCountry("Enter the country you are residing");
+        setErrCountry("Ingresa tu departamento");
       }
-      if (!zip) {
-        setErrZip("Enter the zip code of your area");
+      if (!nit) {
+        setErrNit("Ingresa tu NIT");
       }
-      // ============== Getting the value ==============
+      const customerData = {
+        nombre_cliente: clientName,
+        correo_cliente: email,
+        password_cliente: password,
+        telefono_cliente: phone,
+        nit_cliente: nit,
+        direccion_cliente: address,
+        municipio_cliente: city,
+        departamento_cliente: country,
+      };
       if (
         clientName &&
         email &&
         EmailValidation(email) &&
         password &&
         password.length >= 6 &&
+        phone &&
+        nit &&
         address &&
         city &&
-        country &&
-        zip
+        country
       ) {
-        setSuccessMsg(
-          `Hello dear ${clientName}, Welcome you to OREBI Admin panel. We received your Sign up request. We are processing to validate your access. Till then stay connected and additional assistance will be sent to you by your mail at ${email}`
-        );
-        setClientName("");
-        setEmail("");
-        setPhone("");
-        setPassword("");
-        setAddress("");
-        setCity("");
-        setCountry("");
-        setZip("");
+        api
+        .post("/customers", customerData)
+        .then((response) => {
+          localStorage.setItem("customer", JSON.stringify(response.data));
+          window.location.href = '/'
+        })
+        .catch((error) => {
+          console.log(error);
+        });
       }
     }
   };
@@ -158,214 +160,191 @@ const SignUp = () => {
         </div>
       </div>
       <div className="w-full lgl:w-[500px] h-full flex flex-col justify-center">
-        {successMsg ? (
-          <div className="w-[500px]">
-            <p className="w-full px-4 py-10 text-green-500 font-medium font-titleFont">
-              {successMsg}
-            </p>
-            <Link to="/signin">
-              <button
-                className="w-full h-10 bg-primeColor rounded-md text-gray-200 text-base font-titleFont font-semibold 
-            tracking-wide hover:bg-black hover:text-white duration-300"
-              >
-                Sign in
-              </button>
-            </Link>
-          </div>
-        ) : (
-          <form className="w-full lgl:w-[500px] h-screen flex items-center justify-center">
-            <div className="px-6 py-4 w-full h-[96%] flex flex-col justify-start overflow-y-scroll scrollbar-thin scrollbar-thumb-primeColor">
-              <h1 className="font-titleFont underline underline-offset-4 decoration-[1px] font-semibold text-2xl mdl:text-3xl mb-4">
-                Registrate
-              </h1>
-              <div className="flex flex-col gap-3">
-                {/* client name */}
-                <div className="flex flex-col gap-.5">
-                  <p className="font-titleFont text-base font-semibold text-gray-600">
-                    Nombre
+        <form className="w-full lgl:w-[500px]  flex items-center justify-center">
+          <div className="px-6 py-4 w-full h-[100%] flex flex-col justify-start overflow-y-scroll scrollbar-thin scrollbar-thumb-primeColor">
+            <h1 className="font-titleFont underline underline-offset-4 decoration-[1px] font-semibold text-2xl mdl:text-3xl mb-4">
+              Registrate
+            </h1>
+            <div className="flex flex-col gap-3">
+              {/* client name */}
+              <div className="flex flex-col gap-.5">
+                <p className="font-titleFont text-base font-semibold text-gray-600">
+                  Nombre
+                </p>
+                <input
+                  onChange={handleName}
+                  value={clientName}
+                  className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
+                  type="text"
+                  placeholder="ej. María Rojas"
+                />
+                {errClientName && (
+                  <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
+                    <span className="font-bold italic mr-1">!</span>
+                    {errClientName}
                   </p>
-                  <input
-                    onChange={handleName}
-                    value={clientName}
-                    className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
-                    type="text"
-                    placeholder="ej. María Rojas"
-                  />
-                  {errClientName && (
-                    <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
-                      <span className="font-bold italic mr-1">!</span>
-                      {errClientName}
-                    </p>
-                  )}
-                </div>
-                {/* Email */}
-                <div className="flex flex-col gap-.5">
-                  <p className="font-titleFont text-base font-semibold text-gray-600">
-                    Correo electrónico
+                )}
+              </div>
+              {/* Email */}
+              <div className="flex flex-col gap-.5">
+                <p className="font-titleFont text-base font-semibold text-gray-600">
+                  Correo electrónico
+                </p>
+                <input
+                  onChange={handleEmail}
+                  value={email}
+                  className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
+                  type="email"
+                  placeholder="ej. example@mail.com"
+                />
+                {errEmail && (
+                  <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
+                    <span className="font-bold italic mr-1">!</span>
+                    {errEmail}
                   </p>
-                  <input
-                    onChange={handleEmail}
-                    value={email}
-                    className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
-                    type="email"
-                    placeholder="ej. example@mail.com"
-                  />
-                  {errEmail && (
-                    <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
-                      <span className="font-bold italic mr-1">!</span>
-                      {errEmail}
-                    </p>
-                  )}
-                </div>
-                {/* Phone Number */}
-                <div className="flex flex-col gap-.5">
-                  <p className="font-titleFont text-base font-semibold text-gray-600">
-                    Teléfono
+                )}
+              </div>
+              <div className="flex flex-col gap-.5">
+                <p className="font-titleFont text-base font-semibold text-gray-600">
+                  Contraseña
+                </p>
+                <input
+                  onChange={handlePassword}
+                  value={password}
+                  className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
+                  type="password"
+                  placeholder="******"
+                />
+                {errPassword && (
+                  <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
+                    <span className="font-bold italic mr-1">!</span>
+                    {errPassword}
                   </p>
-                  <input
-                    onChange={handlePhone}
-                    value={phone}
-                    className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
-                    type="text"
-                    placeholder="ej. 12345678"
-                  />
-                  {errPhone && (
-                    <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
-                      <span className="font-bold italic mr-1">!</span>
-                      {errPhone}
-                    </p>
-                  )}
-                </div>
-                {/* Password */}
-                <div className="flex flex-col gap-.5">
-                  <p className="font-titleFont text-base font-semibold text-gray-600">
-                    Nit
+                )}
+              </div>
+              {/* Phone Number */}
+              <div className="flex flex-col gap-.5">
+                <p className="font-titleFont text-base font-semibold text-gray-600">
+                  Teléfono
+                </p>
+                <input
+                  onChange={handlePhone}
+                  value={phone}
+                  className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
+                  type="text"
+                  placeholder="ej. 12345678"
+                />
+                {errPhone && (
+                  <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
+                    <span className="font-bold italic mr-1">!</span>
+                    {errPhone}
                   </p>
-                  <input
-                    onChange={handlePassword}
-                    value={password}
-                    className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
-                    type="text"
-                    placeholder="ej. 123456789"
-                  />
-                  {errPassword && (
-                    <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
-                      <span className="font-bold italic mr-1">!</span>
-                      {errPassword}
-                    </p>
-                  )}
-                </div>
-                {/* Address */}
-                <div className="flex flex-col gap-.5">
-                  <p className="font-titleFont text-base font-semibold text-gray-600">
-                    Dirección
+                )}
+              </div>
+              <div className="flex flex-col gap-.5">
+                <p className="font-titleFont text-base font-semibold text-gray-600">
+                  Nit
+                </p>
+                <input
+                  onChange={handleNit}
+                  value={nit}
+                  className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
+                  type="text"
+                  placeholder="ej. 123456789"
+                />
+                {errNit && (
+                  <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
+                    <span className="font-bold italic mr-1">!</span>
+                    {errNit}
                   </p>
-                  <input
-                    onChange={handleAddress}
-                    value={address}
-                    className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
-                    type="text"
-                    placeholder="ej. 3ra av. 6ta calle 01-01 zona 10"
-                  />
-                  {errAddress && (
-                    <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
-                      <span className="font-bold italic mr-1">!</span>
-                      {errAddress}
-                    </p>
-                  )}
-                </div>
-                {/* City */}
-                <div className="flex flex-col gap-.5">
-                  <p className="font-titleFont text-base font-semibold text-gray-600">
-                    Ciudad
+                )}
+              </div>
+              <div className="flex flex-col gap-.5">
+                <p className="font-titleFont text-base font-semibold text-gray-600">
+                  Dirección
+                </p>
+                <input
+                  onChange={handleAddress}
+                  value={address}
+                  className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
+                  type="text"
+                  placeholder="ej. 3ra av. 6ta calle 01-01 zona 10"
+                />
+                {errAddress && (
+                  <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
+                    <span className="font-bold italic mr-1">!</span>
+                    {errAddress}
                   </p>
-                  <input
-                    onChange={handleCity}
-                    value={city}
-                    className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
-                    type="text"
-                    placeholder="ej. Quetzaltenango"
-                  />
-                  {errCity && (
-                    <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
-                      <span className="font-bold italic mr-1">!</span>
-                      {errCity}
-                    </p>
-                  )}
-                </div>
-                {/* Country */}
-                <div className="flex flex-col gap-.5">
-                  <p className="font-titleFont text-base font-semibold text-gray-600">
-                    País
+                )}
+              </div>
+              <div className="flex flex-col gap-.5">
+                <p className="font-titleFont text-base font-semibold text-gray-600">
+                  Municipio
+                </p>
+                <input
+                  onChange={handleCity}
+                  value={city}
+                  className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
+                  type="text"
+                  placeholder="ej. Quetzaltenango"
+                />
+                {errCity && (
+                  <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
+                    <span className="font-bold italic mr-1">!</span>
+                    {errCity}
                   </p>
-                  <input
-                    onChange={handleCountry}
-                    value={country}
-                    className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
-                    type="text"
-                    placeholder="ej. Guatemala"
-                  />
-                  {errCountry && (
-                    <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
-                      <span className="font-bold italic mr-1">!</span>
-                      {errCountry}
-                    </p>
-                  )}
-                </div>
-                {/* Zip code */}
-                <div className="flex flex-col gap-.5">
-                  <p className="font-titleFont text-base font-semibold text-gray-600">
-                    Zip/Código postal
+                )}
+              </div>
+              <div className="flex flex-col gap-.5">
+                <p className="font-titleFont text-base font-semibold text-gray-600">
+                  Departamento
+                </p>
+                <input
+                  onChange={handleCountry}
+                  value={country}
+                  className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
+                  type="text"
+                  placeholder="ej. Quetzaltenango"
+                />
+                {errCountry && (
+                  <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
+                    <span className="font-bold italic mr-1">!</span>
+                    {errCountry}
                   </p>
-                  <input
-                    onChange={handleZip}
-                    value={zip}
-                    className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
-                    type="text"
-                    placeholder="ej. 09001"
-                  />
-                  {errZip && (
-                    <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
-                      <span className="font-bold italic mr-1">!</span>
-                      {errZip}
-                    </p>
-                  )}
-                </div>
-                {/* Checkbox */}
-                <div className="flex items-start mdl:items-center gap-2">
-                  <input
-                    onChange={() => setChecked(!checked)}
-                    className="w-4 h-4 mt-1 mdl:mt-0 cursor-pointer"
-                    type="checkbox"
-                  />
-                  <p className="text-sm text-primeColor">
-                    I agree to the OREBI{" "}
-                    <span className="text-blue-500">Terms of Service </span>and{" "}
-                    <span className="text-blue-500">Privacy Policy</span>.
-                  </p>
-                </div>
-                <button
-                  onClick={handleSignUp}
-                  className={`${
-                    checked
-                      ? "bg-primeColor hover:bg-black hover:text-white cursor-pointer"
-                      : "bg-gray-500 hover:bg-gray-500 hover:text-gray-200 cursor-none"
-                  } w-full text-gray-200 text-base font-medium h-10 rounded-md hover:text-white duration-300`}
-                >
-                  Create Account
-                </button>
-                <p className="text-sm text-center font-titleFont font-medium">
-                  Already have an Account?{" "}
-                  <Link to="/signin">
-                    <span className="hover:text-blue-600 duration-300">
-                      Sign in
-                    </span>
-                  </Link>
+                )}
+              </div>
+              <div className="flex items-start mdl:items-center gap-2">
+                <input
+                  onChange={() => setChecked(!checked)}
+                  className="w-4 h-4 mt-1 mdl:mt-0 cursor-pointer"
+                  type="checkbox"
+                />
+                <p className="text-sm text-primeColor">
+                  Estoy de acuerdo con los{" "}
+                  <span className="text-blue-500">Términos y Condiciones</span>{" "} de OREBI{" "}
                 </p>
               </div>
+              <button
+                onClick={handleSignUp}
+                className={`${
+                  checked
+                    ? "bg-primeColor hover:bg-black hover:text-white cursor-pointer"
+                    : "bg-gray-500 hover:bg-gray-500 hover:text-gray-200 cursor-none"
+                } w-full text-gray-200 text-base font-medium h-10 rounded-md hover:text-white duration-300`}
+              >
+                Registrarme
+              </button>
+              <p className="text-sm text-center font-titleFont font-medium">
+                Ya tienes una cuenta?{" "}
+                <Link to="/signin">
+                  <span className="hover:text-blue-600 duration-300">
+                    Sign in
+                  </span>
+                </Link>
+              </p>
             </div>
-          </form>
-        )}
+          </div>
+        </form>
       </div>
     </div>
   );
