@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { BsCheckCircleFill } from "react-icons/bs";
-import { Link, Navigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { logoLight } from "../../assets/images";
 import api from "../../utils/api";
 
@@ -72,7 +72,7 @@ const SignUp = () => {
         setErrEmail("Ingresa tu correo");
       } else {
         if (!EmailValidation(email)) {
-          setErrEmail("Ingresa un mail válido");
+          setErrEmail("Ingresa un correo electrónico válido");
         }
       }
       if (!phone) {
@@ -335,7 +335,7 @@ const SignUp = () => {
                 Registrarme
               </button>
               <p className="text-sm text-center font-titleFont font-medium">
-                Ya tienes una cuenta?{" "}
+                ¿Ya tienes una cuenta?{" "}
                 <Link to="/signin">
                   <span className="hover:text-blue-600 duration-300">
                     Sign in
