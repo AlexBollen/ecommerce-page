@@ -22,8 +22,55 @@ import Offer from "./pages/Offer/Offer";
 import Payment from "./pages/payment/Payment";
 import ProductDetails from "./pages/ProductDetails/ProductDetails";
 import Shop from "./pages/Shop/Shop";
+import { useEffect, useState } from "react";
+import api from "./utils/api";
 
 const Layout = () => {
+  const [location, setLocation] = useState(null);
+
+  function handleLocation() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(success, error, {
+        enableHighAccuracy: true,
+      });
+    } else {
+      console.log("Geolocalización no disponible");
+    }
+  }
+
+  function success(position) {
+    const latitude = position.coords.latitude;
+    const longitude = position.coords.longitude;
+    setLocation({ latitude, longitude });
+  }
+
+  function error() {
+    console.log("Fallo al obtener tu ubicación");
+  }
+
+  useEffect(() => {
+    handleLocation();
+  }, []);
+
+  useEffect(() => {
+    console.log(location);
+  }, [location]);
+
+  useEffect(() => {
+    if (location !== null) {
+      api
+        .get("/agencies/sucursalCercana", {
+          params: { latitud: location.latitude, longitud: location.longitude },
+        })
+        .then((response) => {
+          localStorage.setItem('sucursal', `${response.data.nombre_sucursal} - ${response.data.direccion_detallada}`)
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    }
+  }, [location]);
+
   return (
     <div>
       <Header />
