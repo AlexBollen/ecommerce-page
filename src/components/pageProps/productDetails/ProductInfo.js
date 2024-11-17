@@ -6,49 +6,6 @@ import api from "../../../utils/api";
 
 const ProductInfo = ({ productInfo }) => {
   const dispatch = useDispatch();
-  const [location, setLocation] = useState(null);
-  const [closestAgency, setClosestAgency] = useState("");
-  const [errorMsg, setErrorMsg] = useState(null)
-
-  function handleLocation() {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(success, error, {
-        enableHighAccuracy: true,
-      });
-    } else {
-      console.log("Geolocalización no disponible");
-    }
-  }
-
-  function success(position) {
-    const latitude = position.coords.latitude;
-    const longitude = position.coords.longitude;
-    setLocation({ latitude, longitude });
-  }
-
-  function error() {
-    setErrorMsg("Fallo al obtener tu ubicación");
-    console.log("Fallo al obtener tu ubicación");
-  }
-
-  useEffect(() => {
-    handleLocation();
-  }, []);
-
-  useEffect(() => {
-    if (location !== null) {
-      api
-        .get("/agencies/sucursalCercana", {
-          params: { latitud: location.latitude, longitud: location.longitude },
-        })
-        .then((response) => {
-          setClosestAgency(response.data);
-        })
-        .catch((error) => {
-          console.error(error);
-        });
-    }
-  }, [location]);
 
   return (
     <div className="flex flex-col gap-5">
@@ -73,11 +30,6 @@ const ProductInfo = ({ productInfo }) => {
       >
         Agregar al carrito
       </button>
-      <p className="font-normal text-sm">
-        <span className="text-base font-medium"> Más cercano:</span>{" "}
-        {errorMsg !== null ? errorMsg :
-        <>{closestAgency.nombre_sucursal} - {closestAgency.direccion_detallada}</>}
-      </p>
       <ProductExistences productId={productInfo._id} />
     </div>
   );
