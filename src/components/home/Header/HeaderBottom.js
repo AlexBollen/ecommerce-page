@@ -10,7 +10,8 @@ import { paginationItems } from "../../../constants";
 const HeaderBottom = () => {
   const products = useSelector((state) => state.orebiReducer.products);
   const [show, setShow] = useState(false);
-  const [showUser, setShowUser] = useState(false);
+  const [agency, setAgency] = useState(null);
+  const [address, setAddress] = useState(null);
   const navigate = useNavigate();
   const ref = useRef();
   useEffect(() => {
@@ -38,11 +39,26 @@ const HeaderBottom = () => {
     setFilteredProducts(filtered);
   }, [searchQuery]);
 
+  useEffect(() => {
+    const lsAgency = JSON.parse(localStorage.getItem("sucursal"));
+    if (lsAgency != null) {
+      setAgency(lsAgency.nombre_sucursal);
+      setAddress(lsAgency.direccion_detallada);
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('customer');
+    window.location.reload();
+  }
+
   return (
     <div className="w-full bg-[#F5F5F3] relative">
       <div className="max-w-container mx-auto">
         <Flex className="flex flex-col lg:flex-row items-start lg:items-center justify-between w-full px-4 pb-4 lg:pb-0 h-full lg:h-24">
-          <p className="text-[14px] font-normal">Más cercana: {localStorage.getItem('sucursal')}</p>
+          <p className="text-[14px] font-normal">
+            Más cercana: {agency} - {address}
+          </p>
           <div className="relative w-full lg:w-[400px] h-[50px] text-base text-primeColor bg-white flex items-center gap-2 justify-between px-6 rounded-xl">
             <input
               className="flex-1 h-full outline-none placeholder:text-[#C4C4C4] placeholder:text-[14px]"
@@ -116,11 +132,14 @@ const HeaderBottom = () => {
                       Login
                     </li>
                   </Link>
-                  <Link onClick={() => setShowUser(false)} to="/signup">
+                  <Link to="/signup">
                     <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
                       Sign Up
                     </li>
                   </Link>
+                  <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer" onClick={handleLogout}>
+                    Logout
+                  </li>
                 </motion.ul>
               )}
             </div>

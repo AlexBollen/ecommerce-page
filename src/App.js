@@ -53,17 +53,13 @@ const Layout = () => {
   }, []);
 
   useEffect(() => {
-    console.log(location);
-  }, [location]);
-
-  useEffect(() => {
     if (location !== null) {
       api
         .get("/agencies/sucursalCercana", {
           params: { latitud: location.latitude, longitud: location.longitude },
         })
         .then((response) => {
-          localStorage.setItem('sucursal', `${response.data.nombre_sucursal} - ${response.data.direccion_detallada}`)
+          localStorage.setItem('sucursal', JSON.stringify(response.data))
         })
         .catch((error) => {
           console.error(error);
