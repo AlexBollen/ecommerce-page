@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import Breadcrumbs from "../../components/pageProps/Breadcrumbs";
 import { resetCart } from "../../redux/orebiSlice";
@@ -19,6 +19,7 @@ import approval from "../../assets/svg/approval.svg";
 
 const Cart = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const products = useSelector((state) => state.orebiReducer.products);
   const [totalAmt, setTotalAmt] = useState("");
   const [shippingCharge, setShippingCharge] = useState("");
@@ -73,17 +74,16 @@ const Cart = () => {
       if (response.status === 201) {
         setSuccessMode(true);
       }
-      console.log(response);
     } catch (err) {
       console.error(err);
     }
   };
 
   const handleEndSale = () => {
-    dispatch(resetCart())
-    setSuccessMode(false)
-    // window.location.href = '/shop'
-  }
+    dispatch(resetCart());
+    setSuccessMode(false);
+    navigate("/shop");
+  };
 
   return (
     <div className="max-w-container mx-auto px-4">
@@ -245,7 +245,7 @@ const Cart = () => {
         </DialogTitle>
         <DialogContent>
           <Typography variant="body1" className="align-center">
-          ¡Compra realizada con éxito!
+            ¡Compra realizada con éxito!
           </Typography>
           <Stack
             direction="row"

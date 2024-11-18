@@ -16,8 +16,8 @@ const Home = () => {
         <Sale />
         <NewArrivals />
         <BestSellers />
-        <YearProduct />
-        <SpecialOffers />
+        {/* <YearProduct /> */}
+        {/* <SpecialOffers /> */}
       </div>
     </div>
   );

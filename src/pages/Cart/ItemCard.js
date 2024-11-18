@@ -9,6 +9,15 @@ import {
 
 const ItemCard = ({ item }) => {
   const dispatch = useDispatch();
+
+  const handleIncrease = () => {
+    if (item.quantity === parseInt(item.colors)) {
+      return;
+    } else if (item.quantity < parseInt(item.colors)) {
+      dispatch(increaseQuantity({ _id: item._id }));
+    }
+  };
+
   return (
     <div className="w-full grid grid-cols-5 mb-4 border py-2">
       <div className="flex col-span-5 mdl:col-span-2 items-center gap-4 ml-4">
@@ -32,7 +41,7 @@ const ItemCard = ({ item }) => {
           </span>
           <p>{item.quantity}</p>
           <span
-            onClick={() => dispatch(increaseQuantity({ _id: item._id }))}
+            onClick={handleIncrease}
             className="w-6 h-6 bg-gray-100 text-2xl flex items-center justify-center hover:bg-gray-300 cursor-pointer duration-300 border-[1px] border-gray-300 hover:border-gray-300"
           >
             +
