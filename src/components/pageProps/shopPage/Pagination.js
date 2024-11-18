@@ -4,6 +4,30 @@ import Product from "../../home/Products/Product";
 import api from "../../../utils/api";
 
 function Items({ currentItems }) {
+  const [totalExistences, setTotalExistences] = useState({});
+
+  useEffect(() => {
+    const fetchExistences = async () => {
+      const existences = {};
+      await Promise.all(
+        currentItems.map(async (item) => {
+          try {
+            const response = await api.get(
+              `/stocks/existencias/${item.id_producto}`
+            );
+            existences[item.id_producto] = response.data;
+          } catch (error) {
+            console.error("Error al obtener existencias totales");
+          }
+        })
+      );
+      setTotalExistences(existences);
+    };
+    if (currentItems) {
+      fetchExistences();
+    }
+  }, [currentItems]);
+
   return (
     <>
       {currentItems &&
@@ -16,7 +40,7 @@ function Items({ currentItems }) {
               price={item.precio_venta}
               color={item.descripcion_producto}
               badge={item.nombre_categoria}
-              des={item.nombre_categoria}
+              des={totalExistences[item.id_producto]?.existencias}
             />
           </div>
         ))}

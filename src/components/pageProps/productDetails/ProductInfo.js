@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { addToCart } from "../../../redux/orebiSlice";
 import ProductExistences from "./ProductExistences";
@@ -21,11 +21,12 @@ const ProductInfo = ({ productInfo }) => {
               image: productInfo.img,
               badge: productInfo.badge,
               price: productInfo.price,
-              colors: productInfo.color,
+              colors: productInfo.des,
             })
           )
         }
         className="w-full py-4 bg-primeColor hover:bg-black duration-300 text-white text-lg font-titleFont"
+        disabled={parseInt(productInfo.des) > 0 ? false : true}
       >
         Agregar al carrito
       </button>

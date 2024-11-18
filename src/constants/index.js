@@ -17,12 +17,12 @@ import {
 export const navBarList = [
   {
     _id: 1001,
-    title: "Home",
+    title: "Inicio",
     link: "/",
   },
   {
     _id: 1002,
-    title: "Shop",
+    title: "Tienda",
     link: "/shop",
   },
 ];

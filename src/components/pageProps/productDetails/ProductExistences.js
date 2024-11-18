@@ -8,7 +8,7 @@ const ProductExistences = ({ productId }) => {
   useEffect(() => {
     if (productId !== undefined) {
       api
-        .get(`/stocks/${parseInt(productId)}`)
+        .get(`/stocks/producto/${parseInt(productId)}`)
         .then((response) => {
           setExistencesData(response.data);
         })
