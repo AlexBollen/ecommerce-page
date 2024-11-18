@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useDispatch } from "react-redux";
 import { addToCart } from "../../../redux/orebiSlice";
 import ProductExistences from "./ProductExistences";
-import api from "../../../utils/api";
 
 const ProductInfo = ({ productInfo }) => {
   const dispatch = useDispatch();

@@ -6,12 +6,26 @@ import Breadcrumbs from "../../components/pageProps/Breadcrumbs";
 import { resetCart } from "../../redux/orebiSlice";
 import { emptyCart } from "../../assets/images/index";
 import ItemCard from "./ItemCard";
+import api from "../../utils/api";
+import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Stack,
+  Typography,
+} from "@mui/material";
+import approval from "../../assets/svg/approval.svg";
 
 const Cart = () => {
   const dispatch = useDispatch();
   const products = useSelector((state) => state.orebiReducer.products);
   const [totalAmt, setTotalAmt] = useState("");
   const [shippingCharge, setShippingCharge] = useState("");
+  const [customer, setCustomer] = useState(null);
+  const [agency, setAgency] = useState(null);
+  const [successMode, setSuccessMode] = useState(false);
+
   useEffect(() => {
     let price = 0;
     products.map((item) => {
@@ -20,6 +34,7 @@ const Cart = () => {
     });
     setTotalAmt(price);
   }, [products]);
+
   useEffect(() => {
     if (totalAmt <= 200) {
       setShippingCharge(30);
@@ -29,6 +44,47 @@ const Cart = () => {
       setShippingCharge(20);
     }
   }, [totalAmt]);
+
+  useEffect(() => {
+    const lsCustomer = localStorage.getItem("customer");
+    if (lsCustomer != null) {
+      setCustomer(JSON.parse(lsCustomer));
+    }
+    const lsAgency = localStorage.getItem("sucursal");
+    if (lsAgency != null) {
+      setAgency(JSON.parse(lsAgency));
+    }
+  }, []);
+
+  const handleSubmit = async () => {
+    try {
+      const data = {
+        monto_total: totalAmt + shippingCharge,
+        cliente: customer.id_cliente,
+        sucursal: agency.id_sucursal,
+        usuario: 1,
+        lista_productos: products.map((product) => [
+          product._id,
+          product.quantity,
+        ]),
+        tipo_transaccion: true,
+      };
+      const response = await api.post("/quotes", data);
+      if (response.status === 201) {
+        setSuccessMode(true);
+      }
+      console.log(response);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleEndSale = () => {
+    dispatch(resetCart())
+    setSuccessMode(false)
+    // window.location.href = '/shop'
+  }
+
   return (
     <div className="max-w-container mx-auto px-4">
       <Breadcrumbs title="Carrito" />
@@ -68,9 +124,42 @@ const Cart = () => {
             </div>
             <p className="text-lg font-semibold">Update Cart</p>
           </div>
-          <div className="max-w-7xl gap-4 flex justify-end mt-4">
+          <div className="flex flex-col mdl:flex-row justify-between py-4 px-4 items-center gap-2 mdl:gap-0">
+            <div className="w-96 flex flex-col gap-4 align-left">
+              <h1 className="text-2xl font-semibold text-left">
+                Datos entrega
+              </h1>
+
+              {customer != null ? (
+                <div>
+                  <p className="flex items-center justify-between text-lg px- font-medium">
+                    Entrega a: {customer.nombre_cliente}
+                  </p>
+                  <p className="flex items-center justify-between text-lg px- font-medium">
+                    Dirección: {customer.direccion_cliente}
+                  </p>
+                  <p className="flex items-center justify-between text-lg px- font-medium">
+                    Municipio: {customer.municipio_cliente}
+                  </p>
+                  <p className="flex items-center justify-between text-lg px- font-medium">
+                    Departamento: {customer.departamento_cliente}
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <h1 className="text-1xl font-semibold text-left">
+                    Debes iniciar sesión o registrarte!
+                  </h1>
+                </>
+              )}
+            </div>
             <div className="w-96 flex flex-col gap-4">
-              <h1 className="text-2xl font-semibold text-right">Total carrito</h1>
+              <h1 className="text-2xl font-semibold text-right">
+                Total carrito
+              </h1>
+              <h4 className="text-l font-semibolg text-right">
+                *Pago contra entrega
+              </h4>
               <div>
                 <p className="flex items-center justify-between border-[1px] border-gray-400 border-b-0 py-1.5 text-lg px-4 font-medium">
                   Subtotal
@@ -91,12 +180,19 @@ const Cart = () => {
                   </span>
                 </p>
               </div>
+              {customer == null && (
+                <h4 className="text-l font-semibolg text-right">
+                  Registrate!!
+                </h4>
+              )}
               <div className="flex justify-end">
-                <Link to="/paymentgateway">
-                  <button className="w-52 h-10 bg-primeColor text-white hover:bg-black duration-300">
-                    Proceder a caja
-                  </button>
-                </Link>
+                <button
+                  className="w-52 h-10 bg-primeColor text-white hover:bg-black duration-300"
+                  onClick={handleSubmit}
+                  disabled={customer == null}
+                >
+                  Realizar compra
+                </button>
               </div>
             </div>
           </div>
@@ -120,8 +216,8 @@ const Cart = () => {
               Tu carrito se siente solito.
             </h1>
             <p className="text-sm text-center px-10 -mt-2">
-              Tu carrito de compra vive para servir. Dale propósito - llenalo con
-              computadoras, accesorios, cámaras... y hazlo muy muy feliz :)
+              Tu carrito de compra vive para servir. Dale propósito - llenalo
+              con computadoras, accesorios, cámaras... y hazlo muy muy feliz :)
             </p>
             <Link to="/shop">
               <button className="bg-primeColor rounded-md cursor-pointer hover:bg-black active:bg-gray-900 px-8 py-2 font-titleFont font-semibold text-lg text-gray-200 hover:text-white duration-300">
@@ -131,6 +227,37 @@ const Cart = () => {
           </div>
         </motion.div>
       )}
+      <Dialog
+        open={successMode}
+        onClose={handleEndSale}
+        aria-labelledby="form-dialog-title"
+      >
+        <DialogTitle
+          id="form-dialog-title"
+          sx={{
+            fontSize: "28px",
+            alignItems: "center",
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
+          <img src={approval} height="100" width="100" />
+        </DialogTitle>
+        <DialogContent>
+          <Typography variant="body1" className="align-center">
+          ¡Compra realizada con éxito!
+          </Typography>
+          <Stack
+            direction="row"
+            spacing={2}
+            sx={{ justifyContent: "flex-end", mt: 3, alignItems: "right" }}
+          >
+            <Button variant="contained" color="primary" onClick={handleEndSale}>
+              Gracias
+            </Button>
+          </Stack>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
