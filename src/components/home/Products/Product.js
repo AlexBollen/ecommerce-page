@@ -26,8 +26,6 @@ const Product = (props) => {
   };
 
   const handleAddToCart = () => {
-    if (parseInt(props.des) <= 0) return;
-
     dispatch(
       addToCart({
         _id: props._id,
@@ -36,7 +34,7 @@ const Product = (props) => {
         image: props.img,
         badge: props.badge,
         price: props.price,
-        colors: props.color,
+        colors: props.des,
       })
     );
   };
@@ -52,7 +50,7 @@ const Product = (props) => {
         </div>
         <div className="w-full h-24 absolute bg-white -bottom-[130px] group-hover:bottom-0 duration-700">
           <ul className="w-full h-full flex flex-col items-end justify-center gap-2 font-titleFont px-2 border-l border-r">
-            <li
+            {props.des > 0 && <li
               onClick={handleAddToCart}
               className="text-[#767676] hover:text-primeColor text-sm font-normal border-b-[1px] border-b-gray-200 hover:border-b-primeColor flex items-center justify-end gap-2 hover:cursor-pointer pb-1 duration-300 w-full"
             >
@@ -60,7 +58,7 @@ const Product = (props) => {
               <span>
                 <FaShoppingCart />
               </span>
-            </li>
+            </li>}
             <li
               onClick={handleProductDetails}
               className="text-[#767676] hover:text-primeColor text-sm font-normal border-b-[1px] border-b-gray-200 hover:border-b-primeColor flex items-center justify-end gap-2 hover:cursor-pointer pb-1 duration-300 w-full"

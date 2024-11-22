@@ -4,30 +4,6 @@ import Product from "../../home/Products/Product";
 import api from "../../../utils/api";
 
 function Items({ currentItems }) {
-  const [totalExistences, setTotalExistences] = useState({});
-
-  useEffect(() => {
-    const fetchExistences = async () => {
-      const existences = {};
-      await Promise.all(
-        currentItems.map(async (item) => {
-          try {
-            const response = await api.get(
-              `/stocks/existencias/${item.id_producto}`
-            );
-            existences[item.id_producto] = response.data;
-          } catch (error) {
-            console.error("Error al obtener existencias totales");
-          }
-        })
-      );
-      setTotalExistences(existences);
-    };
-    if (currentItems) {
-      fetchExistences();
-    }
-  }, [currentItems]);
-
   return (
     <>
       {currentItems &&
@@ -40,7 +16,7 @@ function Items({ currentItems }) {
               price={item.precio_venta}
               color={item.descripcion_producto}
               badge={item.nombre_categoria}
-              des={totalExistences[item.id_producto]?.existencias}
+              des={item.existences}
             />
           </div>
         ))}
@@ -50,30 +26,67 @@ function Items({ currentItems }) {
 
 const Pagination = ({ itemsPerPage }) => {
   const [productsData, setProductsData] = useState([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const lsAgency = JSON.parse(localStorage.getItem("sucursal"));
 
   useEffect(() => {
-    api
-      .get("/products")
-      .then((response) => {
-        setProductsData(response.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }, []);
-  // Here we use item offsets; we could also use page offsets
-  // following the API or data you're working with.
+    const fetchProducts = async () => {
+      try {
+        const url = process.env.REACT_APP_API_URL;
+
+        const response = await api.get("/products/productos_paginados", {
+          params: { page: currentPage, limit: itemsPerPage },
+        });
+
+        const { data, totalPages, total } = response.data;
+
+        const updatedProductsPromises = data.map((product) =>
+          api
+            .get(`/stocks/existencias_sucursal`, {
+              params: {
+                id_producto: product.id_producto,
+                id_sucursal: lsAgency.id_sucursal,
+              },
+            })
+            .then((existenceResponse) => ({
+              ...product,
+              imagen: `${url}/${product.imagen}`,
+              existences: existenceResponse?.data ?? 0,
+            }))
+            .catch((error) => {
+              console.error(
+                `Error obteniendo existencias de producto ${product.id_producto}`,
+                error
+              );
+              return { ...product, existences: 0, quantity: 1 };
+            })
+        );
+
+        const updatedProducts = await Promise.all(updatedProductsPromises);
+
+        setProductsData(updatedProducts);
+        setTotalPages(totalPages);
+        setTotalProducts(total);
+      } catch (error) {
+        console.error("Error al obtener los productos:", error);
+      }
+    };
+
+    fetchProducts();
+  }, [currentPage, itemsPerPage]);
+
   const [itemOffset, setItemOffset] = useState(0);
   const [itemStart, setItemStart] = useState(1);
 
   const endOffset = itemOffset + itemsPerPage;
-  const pageCount = Math.ceil(productsData.length / itemsPerPage);
 
-  // Invoke when user click to request another page.
   const handlePageClick = (event) => {
-    const newOffset = (event.selected * itemsPerPage) % productsData.length;
+    const newOffset = (event.selected * itemsPerPage) % totalProducts;
     setItemOffset(newOffset);
     setItemStart(newOffset);
+    setCurrentPage(event.selected + 1);
   };
 
   return (
@@ -87,7 +100,7 @@ const Pagination = ({ itemsPerPage }) => {
           onPageChange={handlePageClick}
           pageRangeDisplayed={3}
           marginPagesDisplayed={2}
-          pageCount={pageCount}
+          pageCount={totalPages}
           previousLabel=""
           pageLinkClassName="w-9 h-9 border-[1px] border-lightColor hover:border-gray-500 duration-300 flex justify-center items-center"
           pageClassName="mr-6"
@@ -97,7 +110,7 @@ const Pagination = ({ itemsPerPage }) => {
 
         <p className="text-base font-normal text-lightText">
           Productos del {itemStart === 0 ? 1 : itemStart} al {endOffset} de{" "}
-          {productsData.length}
+          {totalProducts}
         </p>
       </div>
     </div>
