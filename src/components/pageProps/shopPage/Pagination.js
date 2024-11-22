@@ -11,7 +11,7 @@ function Items({ currentItems }) {
           <div key={item.id_producto} className="w-full">
             <Product
               _id={item.id_producto}
-              img={item.imagen}
+              img={item.imagen.replace('http://localhost:3000', '')}
               productName={item.nombre_producto}
               price={item.precio_venta}
               color={item.descripcion_producto}
