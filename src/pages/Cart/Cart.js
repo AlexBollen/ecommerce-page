@@ -62,13 +62,14 @@ const Cart = () => {
       const data = {
         monto_total: totalAmt + shippingCharge,
         cliente: customer.id_cliente,
-        sucursal: agency.id_sucursal,
+        sucursalId: agency.id_sucursal,
         usuario: 1,
         lista_productos: products.map((product) => [
           product._id,
           product.quantity,
         ]),
-        tipo_transaccion: true,
+        tipo_transaccion: "V",
+        tipo: true
       };
       const response = await api.post("/quotes", data);
       if (response.status === 201) {
