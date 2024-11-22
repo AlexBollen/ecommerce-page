@@ -63,7 +63,7 @@ const HeaderBottom = () => {
             <input
               className="flex-1 h-full outline-none placeholder:text-[#C4C4C4] placeholder:text-[14px]"
               type="text"
-              onChange={handleSearch}
+              // onChange={handleSearch}
               value={searchQuery}
               placeholder="Busca tus productos aquí"
             />
